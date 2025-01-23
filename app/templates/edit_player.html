@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Edit Player</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=50) }}
+    </p>
+    <p>
+        {{ form.school.label }}<br>
+        {{ form.school() }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+<a href="{{ url_for('main.players') }}">Back to Player List</a>
+{% endblock %}

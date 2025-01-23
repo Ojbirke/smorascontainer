@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+    }
+    h1 {
+        font-weight: 700;
+        color: #343a40;
+    }
+    .table thead th {
+        background-color: #212529;
+        color: #ffffff;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+    .dark-mode {
+        background-color: #212529;
+        color: #f8f9fa;
+    }
+    .dark-mode h1, .dark-mode label, .dark-mode .card-title, .dark-mode .card-text {
+        color: #ffffff;
+    }
+    .dark-mode .table thead th {
+        background-color: #343a40;
+    }
+    .dark-mode .btn-primary {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    .dark-mode .card {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+</style>
+
+<button class="btn btn-dark mb-3" id="darkModeToggle">Toggle Dark Mode</button>
+
+<div class="container">
+    <h1 class="text-center my-4">Match List</h1>
+    <table class="table table-striped table-hover shadow">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Opponent</th>
+                <th>Team</th>
+                <th>Players</th>
+                <th>Result</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match.date }}</td>
+                <td>{{ match.time }}</td>
+                <td>{{ match.opponent }}</td>
+                <td>{{ match.team }}</td>
+                <td>
+                    {% for match_player in match.players %}
+                        <span class="badge bg-secondary">{{ match_player.player.name }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('main.matches') }}" style="display:inline;">
+                        <input type="hidden" name="match_id" value="{{ match.id }}">
+                        <select name="result" class="form-select form-select-sm d-inline-block w-auto">
+                            <option value="Win" {% if match.result == 'Win' %}selected{% endif %}>Win</option>
+                            <option value="Loss" {% if match.result == 'Loss' %}selected{% endif %}>Loss</option>
+                            <option value="Draw" {% if match.result == 'Draw' %}selected{% endif %}>Draw</option>
+                        </select>
+                        <button type="submit" class="btn btn-success btn-sm">Update</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('main.matches') }}" style="display:inline;">
+                        <input type="hidden" name="delete_match_id" value="{{ match.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this match?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('darkModeToggle').addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+    });
+</script>
+{% endblock %}
+
+
+
+
