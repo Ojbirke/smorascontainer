@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from app import db
 from app.forms import PlayerForm, MatchForm
 from app.models import Player, Match, MatchPlayer
+from flask_login import login_user, logout_user, login_required, current_user
 
 bp = Blueprint('main', __name__)
 
@@ -22,6 +23,7 @@ def format_player_name_filter(name, all_names):
     return format_player_name(name, all_names)
 
 @bp.route('/')
+@login_required
 def home():
     matches = Match.query.all()
     players = Player.query.all()
@@ -79,6 +81,7 @@ def home():
     )
 
 @bp.route('/players')
+@login_required
 def players():
     sort_by = request.args.get('sort_by', 'name')  # Default sorting by name
     order = request.args.get('order', 'asc')
@@ -94,6 +97,7 @@ def players():
     return render_template('player_list.html', players=players, sort_by=sort_by, order=order)
 
 @bp.route('/add_player', methods=['GET', 'POST'])
+@login_required
 def add_player():
     form = PlayerForm()
     if form.validate_on_submit():
@@ -108,6 +112,7 @@ def add_player():
     return render_template('add_player.html', form=form)
 
 @bp.route('/edit_player/<int:player_id>', methods=['GET', 'POST'])
+@login_required
 def edit_player(player_id):
     player = Player.query.get_or_404(player_id)
     form = PlayerForm(obj=player)
@@ -128,6 +133,7 @@ def delete_player(player_id):
     return redirect(url_for('main.players'))
 
 @bp.route('/add_match', methods=['GET', 'POST'])
+@login_required
 def add_match():
     form = MatchForm()
     form.players.choices = [(player.id, player.name) for player in Player.query.all()]
@@ -153,6 +159,7 @@ def add_match():
     return render_template('add_match.html', form=form)
 
 @bp.route('/matches', methods=['GET', 'POST'])
+@login_required
 def matches():
     query = Match.query
 
@@ -193,6 +200,7 @@ def matches():
     return render_template('match_list.html', matches=matches)
 
 @bp.route('/reports')
+@login_required
 def reports():
     matches = Match.query.all()
     players = Player.query.all()
@@ -232,3 +240,22 @@ def reports():
         team_stats=team_stats,
         player_match_count=player_match_count
     )
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.password == form.password.data:  # Use hashed passwords in production
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('main.home'))
+        else:
+            flash('Invalid username or password.', 'danger')
+    return render_template('login.html', form=form)
+
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('main.login'))

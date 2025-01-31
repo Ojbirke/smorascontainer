@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateField, TimeField, SubmitField, SelectMultipleField, IntegerField
+from wtforms import StringField, SelectField, DateField, TimeField, SubmitField, SelectMultipleField, IntegerField, PasswordField
 from wtforms.validators import DataRequired, Length
 from app import db
 
@@ -19,3 +19,8 @@ class MatchForm(FlaskForm):
 class MatchResultForm(FlaskForm):
     result = SelectField('Match Result', choices=[('Win', 'Win'), ('Loss', 'Loss'), ('Draw', 'Draw')], validators=[DataRequired()])
     submit = SubmitField('Update Result')
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
