@@ -57,13 +57,13 @@
 <button class="btn btn-dark mb-3" id="darkModeToggle">Toggle Dark Mode</button>
 
 <div class="container">
-    <h1 class="text-center my-4">Dashboard</h1>
+    <h1 class="text-center my-4">Dashboard Overview</h1>
 
     <div class="row text-center mb-4">
         <div class="col-md-3">
             <div class="card text-white bg-primary shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Antal Kamper</h5>
+                    <h5 class="card-title">Total Matches</h5>
                     <p class="display-4">{{ total_matches }}</p>
                 </div>
             </div>
@@ -72,7 +72,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-success shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Seire</h5>
+                    <h5 class="card-title">Wins</h5>
                     <p class="display-4">{{ wins }}</p>
                 </div>
             </div>
@@ -81,7 +81,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-danger shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Tap</h5>
+                    <h5 class="card-title">Losses</h5>
                     <p class="display-4">{{ losses }}</p>
                 </div>
             </div>
@@ -90,7 +90,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-warning shadow">
                 <div class="card-body">
-                    <h5 class="card-title">Uavgjort</h5>
+                    <h5 class="card-title">Draws</h5>
                     <p class="display-4">{{ draws }}</p>
                 </div>
             </div>
@@ -99,42 +99,42 @@
 
     <div class="row mt-5">
         <div class="col-md-6">
-            <h3 class="text-center">Resultat Oversikt</h3>
+            <h3 class="text-center">Match Results Overview</h3>
             <canvas id="matchResultsChart"></canvas>
         </div>
 
         <div class="col-md-6">
-            <h3 class="text-center">Lag deltagelse</h3>
+            <h3 class="text-center">Team Participation</h3>
             <canvas id="teamStatsChart"></canvas>
         </div>
     </div>
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <h3 class="text-center">Spiller deltagelse</h3>
+            <h3 class="text-center">Player Match Participation</h3>
             <canvas id="playerMatchChart"></canvas>
         </div>
     </div>
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <h3 class="text-center">Spiller paring</h3>
+            <h3 class="text-center">Player Pairs Participation</h3>
             <div class="table-container">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>{{ "Player" }}</th>
+                            <th>Player</th>
                             {% for player in players %}
-                            <th>{{ player.name|format_player_name(player_names) }}</th>
+                            <th>{{ player.name|format_player_name }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for player1 in players %}
                         <tr>
-                            <td>{{ player1.name|format_player_name(player_names) }}</td>
+                            <td>{{ player1.name|format_player_name }}</td>
                             {% for player2 in players %}
-                            <td style="background-color: {% if player1.name == player2.name %}#FFFFFF{% else %}{{ 'rgb(' ~ (255 - (player_pairs.get((player1.name, player2.name), 0) + player_pairs.get((player2.name, player1.name), 0)) * 255 // max_pairings) ~ ', 255, ' ~ (255 - (player_pairs.get((player1.name, player2.name), 0) + player_pairs.get((player2.name, player1.name), 0)) * 255 // max_pairings) ~ ')' }}{% endif %};">
+                            <td>
                                 {% if player1.name == player2.name %}
                                 -
                                 {% else %}
@@ -220,3 +220,5 @@
     });
 </script>
 {% endblock %}
+
+

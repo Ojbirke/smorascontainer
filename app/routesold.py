@@ -6,26 +6,16 @@ from app.models import Player, Match, MatchPlayer
 
 bp = Blueprint('main', __name__)
 
-def format_player_name(name, all_names):
+def format_player_name(name):
     parts = name.split()
-    first_name = parts[0]
     if len(parts) > 1:
-        last_initial = parts[1][0]
-        # Check if there are other players with the same first name
-        same_first_name_count = sum(1 for n in all_names if n.split()[0] == first_name)
-        if same_first_name_count > 1:
-            return f"{first_name} {last_initial}."
-    return first_name
-
-@bp.app_template_filter('format_player_name')
-def format_player_name_filter(name, all_names):
-    return format_player_name(name, all_names)
+        return f"{parts[0]} {parts[1][0]}."
+    return name
 
 @bp.route('/')
 def home():
     matches = Match.query.all()
     players = Player.query.all()
-    player_names = [player.name for player in players]
 
     # Calculate statistics
     total_matches = len(matches)
@@ -61,9 +51,6 @@ def home():
             for j in range(i + 1, len(players_in_match)):
                 player_pairs[(players_in_match[i], players_in_match[j])] += 1
 
-    # Calculate the maximum number of pairings
-    max_pairings = max(player_pairs.values(), default=0)
-
     return render_template(
         'index.html',
         total_matches=total_matches,
@@ -73,25 +60,13 @@ def home():
         team_stats=team_stats,
         player_match_count=player_match_count,
         player_pairs=player_pairs,
-        max_pairings=max_pairings,
-        players=players,
-        player_names=player_names
+        players=players
     )
 
 @bp.route('/players')
 def players():
-    sort_by = request.args.get('sort_by', 'name')  # Default sorting by name
-    order = request.args.get('order', 'asc')
-
-    query = Player.query
-    if sort_by in ['name', 'school']:
-        if order == 'desc':
-            query = query.order_by(getattr(Player, sort_by).desc())
-        else:
-            query = query.order_by(getattr(Player, sort_by).asc())
-
-    players = query.all()
-    return render_template('player_list.html', players=players, sort_by=sort_by, order=order)
+    players = Player.query.all()
+    return render_template('player_list.html', players=players)
 
 @bp.route('/add_player', methods=['GET', 'POST'])
 def add_player():
@@ -191,44 +166,3 @@ def matches():
         return redirect(url_for('main.matches'))
 
     return render_template('match_list.html', matches=matches)
-
-@bp.route('/reports')
-def reports():
-    matches = Match.query.all()
-    players = Player.query.all()
-
-    # Calculate statistics
-    total_matches = len(matches)
-    wins = Match.query.filter_by(result='Win').count()
-    losses = Match.query.filter_by(result='Loss').count()
-    draws = Match.query.filter_by(result='Draw').count()
-
-    # Team-wise statistics
-    team_stats = {
-        'Smørås Ferrari': Match.query.filter_by(team='Smørås Ferrari').count(),
-        'Smørås Maserati': Match.query.filter_by(team='Smørås Maserati').count(),
-        'Smørås Lamborghini': Match.query.filter_by(team='Smørås Lamborghini').count()
-    }
-
-    # Player match participation statistics
-    player_match_count = {}
-    for match in matches:
-        for player in match.players:
-            player_match_count.setdefault(player.player.name, 0)
-            player_match_count[player.player.name] += 1
-
-    # Debug statements
-    print(f"Total Matches: {total_matches}")
-    print(f"Wins: {wins}, Losses: {losses}, Draws: {draws}")
-    print(f"Team Stats: {team_stats}")
-    print(f"Player Match Count: {player_match_count}")
-
-    return render_template(
-        'reports.html',
-        total_matches=total_matches,
-        wins=wins,
-        losses=losses,
-        draws=draws,
-        team_stats=team_stats,
-        player_match_count=player_match_count
-    )
